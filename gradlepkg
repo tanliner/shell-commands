@@ -1,0 +1,36 @@
+#!/bin/bash
+
+dir="$1"
+type="$3"
+channel="$2"
+fixType="$type"
+fixType2="$type"
+fixChannel="$channel"
+
+if [[ $# -lt 3 ]];then
+    echo "please input projectdir, envtype and buildType"
+    exit 0
+fi
+
+if [[ "$type" =~ "release" ]] || [[ "$type" =~ "Release" ]];then
+    fixType="Release"
+    fixType2="release"
+else
+    fixType="Debug"
+    fixType2="debug"
+fi
+
+if [[ "$channel" =~ "dev" ]] || [[ "$type" =~ "Dev" ]];then
+    fixChannel="Dev"
+else
+    fixChannel="Prd"
+fi
+
+oldDir="$PWD"
+cd $dir
+
+echo "assemble$fixChannel$fixType"' processing...'
+
+./gradlew clean "assemble$fixChannel$fixType"
+
+cp "app/build/outputs/apk/"${fixChannel}"/"${fixType2}"/app-"${fixChannel}"-"${fixType}".apk" "${oldDir}/sign_default.apk"

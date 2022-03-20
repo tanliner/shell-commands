@@ -1,0 +1,9 @@
+#!/bin/bash
+
+jks="$1"
+inFile="$2"
+outFile="$3"
+aliasKey="$4"
+
+jarsigner -verbose -keystore "${jks}" -signedjar "${outFile}" "${inFile}" "${aliasKey}"
+

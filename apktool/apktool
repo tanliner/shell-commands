@@ -1,0 +1,6 @@
+#!/bin/bash
+#jarFile='/Users/lintan/bin/apktool/apktool_2.3.4.jar'
+#jarFile='/Users/lintan/bin/apktool/apktool_2.5.0.jar'
+jarFile='/Users/Shared/bin/apktool/apktool_2.5.0.jar'
+
+java -jar $jarFile "$@"

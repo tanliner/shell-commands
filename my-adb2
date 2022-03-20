@@ -1,0 +1,88 @@
+#!/bin/bash
+
+# ref: https://juejin.cn/post/7075981127776731144
+
+# real_adb=$HOME'/Library/Android/sdk/platform-tools/adb'
+real_adb='/Users/Shared/Library/Android/sdk/platform-tools/adb'
+
+if [ ! -f $real_adb ]; then
+    echo "internal error: The file '$real_adb' does not exit, Please check the adb path."
+    exit 1
+fi
+
+whiteList=(
+    devices
+    connect
+    disconnect
+    start-server
+    kill-server
+    help
+    version
+    pair
+    forward
+    reverse
+)
+
+if [[ "$@" == "" ]]; then
+    $real_adb "$@"
+    exit $?
+fi
+
+
+devices=`$real_adb devices | sed -n '2,$p' | awk '{print $1}'`
+count=`echo "$devices" | wc -l | xargs`
+
+verifyId() {
+    read -p "Please select which device[1-$count]: " ID
+    # verify the id is a number or not
+    expr $ID "+" 1 &> /dev/null
+    check=$?
+}
+
+checkInput() {
+    verifyId
+    while(($check != 0 || $ID < 1 || $ID > $count));do
+        verifyId
+    done
+}
+
+if [[ $1 == "-s" ]]; then
+    deviceNo=${2}
+    if [[ ! "${devices[@]}" =~ "${deviceNo}" ]];then
+        echo "internal error: failed to get feature set: device ${deviceNo} not found"
+        echo "Please try to remove the '-s ${deviceNo}' parameter"
+        exit 1
+    fi
+    my-adb "$@"
+    exit $?
+fi
+
+if [[ "${whiteList[@]}" =~ "$1" ]]; then
+    $real_adb "$@"
+    exit $?
+fi
+
+if [ $count -gt 1 ]; then
+    i=1
+    hint="No.\tSerialNo. (Device, Api, Product)"
+    while(($i<="$count"));do
+        device=`echo "$devices" | sed -n "${i}p"`
+        # info=`adb devices | grep $device | cut -d ' ' -f 2`
+        brand=`$real_adb -s $device shell getprop ro.product.brand 2> /dev/null || echo $info`
+        model=`$real_adb -s $device shell getprop ro.product.model 2> /dev/null`
+        sdk=`$real_adb -s $device shell getprop ro.build.version.sdk 2> /dev/null`
+        product=`$real_adb -s $device shell getprop ro.product.name 2> /dev/null`
+        # name=`$real_adb -s $device shell getprop ro.product.device 2> /dev/null`
+        hint=$hint"\n $i\t$device ($brand-$model, Api-$sdk, $product)"
+
+        i=$(($i+1))
+    done
+
+    echo -e "${hint}\n---------------------------"
+    checkInput
+
+    device=`echo "$devices" | sed -n "${ID}p"`
+    my-adb "-s" $device "$@"
+else
+    my-adb "-s" ${devices} "$@"
+fi

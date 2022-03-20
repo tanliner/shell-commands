@@ -1,0 +1,14 @@
+#!/bin/bash
+
+value="$1"
+file="$2"
+let i10=10#${value}
+val=`echo "obase=16;${i10}" | bc`
+target=`echo "0x$val" | perl -ne 'print lc'`
+
+shift
+
+#command="grep ${target} === {$@}"
+#echo $command
+
+grep ${target} "$@"

@@ -1,0 +1,28 @@
+#!/bin/bash
+
+if [ "$SelfHome" == "" ];then
+    SelfHome="${HOME}"
+fi
+
+# Max
+if [ "$(uname)" == "Darwin" ];then
+
+    shellRoot="${SelfHome}/bin/"
+# Linux
+elif ["$(expr substr $(uname -s) 1 5) "==" Linux" ];then
+    shellRoot=${HOME}'/bin/'
+else
+    # elif["$(expr substr $(uname -s) 1 10)"=="MINGW32_NT"];then
+    echo 'w t f'
+fi
+
+shellFile=$1
+
+if test "$shellFile" = "";then
+    read -p "please in put a file name." shellFile
+fi
+
+cd $shellRoot
+touch $shellFile
+echo '#!/bin/bash' > $shellFile
+chmod a+x $shellFile

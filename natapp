@@ -1,0 +1,31 @@
+#!/bin/bash
+############
+#
+# for idea server
+#
+############
+
+args="$1"
+pidFile='/tmp/natpid'
+phpFile='/Users/tanlin/env/IdeaServer/natapp.php'
+
+function quitNatapp() {
+    if [[ ! -f $pidFile ]];then
+        return 0
+    fi
+    pid=`cat $pidFile`
+    if [ ! -z $pid ];then
+        kill -9 $pid
+        cat /dev/null > $pidFile
+        echo "natapp stopped"
+    fi
+}
+
+
+if test "$args" == "-q";then
+    quitNatapp
+else
+    php $phpFile  --authtoken=14ae8f66afcc9370 &
+    echo "$!" > $pidFile
+fi
+

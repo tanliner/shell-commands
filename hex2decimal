@@ -1,0 +1,8 @@
+#!/bin/bash
+value="$1"
+file="$2"
+let i16=16#${value}
+val=`echo "obase=10;${i16}" | bc`
+target=`echo "$val" | perl -ne 'print lc'`
+
+echo $target
